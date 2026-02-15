@@ -3,6 +3,7 @@ import os
 import re
 from typing import Any
 from ai_scientist.utils.token_tracker import track_token_usage
+from ai_scientist.model_utils import token_param
 
 import anthropic
 import backoff
@@ -11,9 +12,11 @@ import openai
 MAX_NUM_TOKENS = 4096
 
 AVAILABLE_LLMS = [
+    "claude-opus-4-6",
     "claude-3-5-sonnet-20240620",
     "claude-3-5-sonnet-20241022",
     # OpenAI models
+    "gpt-5.2",
     "gpt-4o-mini",
     "gpt-4o-mini-2024-07-18",
     "gpt-4o",
@@ -124,7 +127,7 @@ def get_batch_responses_from_llm(
                 *new_msg_history,
             ],
             temperature=temperature,
-            max_tokens=MAX_NUM_TOKENS,
+            **token_param(model, MAX_NUM_TOKENS),
             n=n_responses,
             stop=None,
             seed=0,
@@ -234,7 +237,7 @@ def make_llm_call(client, model, temperature, system_message, prompt):
                 *prompt,
             ],
             temperature=temperature,
-            max_tokens=MAX_NUM_TOKENS,
+            **token_param(model, MAX_NUM_TOKENS),
             n=1,
             stop=None,
             seed=0,

@@ -7,10 +7,12 @@ import openai
 import os
 from PIL import Image
 from ai_scientist.utils.token_tracker import track_token_usage
+from ai_scientist.model_utils import token_param
 
 MAX_NUM_TOKENS = 4096
 
 AVAILABLE_VLMS = [
+    "gpt-5.2",
     "gpt-4o-2024-05-13",
     "gpt-4o-2024-08-06",
     "gpt-4o-2024-11-20",
@@ -112,7 +114,7 @@ def make_vlm_call(client, model, temperature, system_message, prompt):
                 *prompt,
             ],
             temperature=temperature,
-            max_tokens=MAX_NUM_TOKENS,
+            **token_param(model, MAX_NUM_TOKENS),
         )
     else:
         raise ValueError(f"Model {model} not supported.")
@@ -194,7 +196,7 @@ def get_response_from_vlm(
 
 def create_client(model: str) -> tuple[Any, str]:
     """Create client for vision-language model."""
-    if model in [
+    if model.startswith("gpt-") or model in [
         "gpt-4o-2024-05-13",
         "gpt-4o-2024-08-06",
         "gpt-4o-2024-11-20",
@@ -322,7 +324,7 @@ def get_batch_responses_from_vlm(
                     *new_msg_history,
                 ],
                 temperature=temperature,
-                max_tokens=MAX_NUM_TOKENS,
+                **token_param(model, MAX_NUM_TOKENS),
                 n=n_responses,
                 seed=0,
             )
